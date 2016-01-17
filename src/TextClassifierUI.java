@@ -1,7 +1,19 @@
 
+import java.awt.BorderLayout;
 import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
+import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.evaluation.Prediction;
+import weka.classifiers.evaluation.ThresholdCurve;
+import weka.classifiers.lazy.IBk;
+import weka.classifiers.trees.RandomForest;
+import weka.core.FastVector;
+import weka.core.Instances;
+import weka.gui.visualize.PlotData2D;
+import weka.gui.visualize.ThresholdVisualizePanel;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -35,6 +47,7 @@ public class TextClassifierUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
         testSetButton = new javax.swing.JButton();
         trainSetButton = new javax.swing.JButton();
@@ -43,6 +56,11 @@ public class TextClassifierUI extends javax.swing.JFrame {
         kFold = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         runButton = new javax.swing.JButton();
+        naiveBayes = new javax.swing.JRadioButton();
+        knn = new javax.swing.JRadioButton();
+        jLabel2 = new javax.swing.JLabel();
+        kNearest = new javax.swing.JTextField();
+        useCV = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Text Classifier By Emre Ardic");
@@ -65,8 +83,11 @@ public class TextClassifierUI extends javax.swing.JFrame {
 
         result.setEditable(false);
         result.setColumns(20);
+        result.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         result.setRows(5);
         jScrollPane1.setViewportView(result);
+
+        kFold.setText("10");
 
         jLabel1.setText("K-Fold");
 
@@ -78,20 +99,42 @@ public class TextClassifierUI extends javax.swing.JFrame {
             }
         });
 
+        buttonGroup1.add(naiveBayes);
+        naiveBayes.setSelected(true);
+        naiveBayes.setText("Naive Bayes");
+
+        buttonGroup1.add(knn);
+        knn.setText("KNN");
+
+        jLabel2.setText("K Nearest");
+
+        kNearest.setText("10");
+
+        useCV.setText("Use CV");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(kFold)
-                    .addComponent(trainSetButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(testSetButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(runButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(naiveBayes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(kNearest)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(knn)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(kFold, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(trainSetButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE)
+                                .addComponent(testSetButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(runButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(jLabel2)
+                            .addComponent(useCV, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(5, 5, 5)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 345, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -100,16 +143,26 @@ public class TextClassifierUI extends javax.swing.JFrame {
                 .addGap(24, 24, 24)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(trainSetButton)
+                        .addComponent(trainSetButton, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(testSetButton)
+                        .addComponent(testSetButton, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(runButton)
-                        .addGap(8, 8, 8)
+                        .addComponent(runButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(kFold, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 132, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(useCV)
+                        .addGap(18, 18, 18)
+                        .addComponent(naiveBayes)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(knn)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(kNearest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(jScrollPane1))
                 .addContainerGap())
         );
@@ -126,6 +179,7 @@ public class TextClassifierUI extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void trainSetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trainSetButtonActionPerformed
@@ -157,16 +211,84 @@ public class TextClassifierUI extends javax.swing.JFrame {
     private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButtonActionPerformed
         // TODO add your handling code here:
         try {
-            DocReader dr = new DocReader(trainFiles, testFiles);
-            dr.classify();
+            DocClassifier dr = new DocClassifier(trainFiles, testFiles);
+            Classifier cl;
+            if (naiveBayes.isSelected()) {
+                cl = new NaiveBayes();
+            } else {
+                cl = new IBk(Integer.parseInt(kNearest.getText()));
+            }
+            Evaluation ev;
+            if (useCV.isSelected()) {
+                ev = dr.cvClassify(cl, Integer.parseInt(kFold.getText()));
+                result.setText(dr.performanceEval(ev));
+            } else {
+                ev = dr.classify(cl);
+                result.setText(dr.performanceEval(ev));
+                result.append("\nDOCUMENT\t=>\tPREDICT\n");
+                for (String p : dr.getDocPredList()) {
+                    result.append(p + "\n");
+                }
+            }
+            ThresholdVisualizePanel vmc = new ThresholdVisualizePanel();
+            setVMC(ev.predictions(), vmc, true);
+            showVMC(vmc);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    "K Nearest and K-Fold must be positive numbers.",
+                    "Number Format Error",
+                    JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this,
-                    "Failed to classify",
+                    "Failed to classify : " + e.getLocalizedMessage(),
                     "Unexpected Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_runButtonActionPerformed
+
+    private void setVMC(FastVector predictions, ThresholdVisualizePanel vmc, boolean masterPlot) {
+        try {
+            ThresholdCurve tc = new ThresholdCurve();
+            Instances result = tc.getCurve(predictions);
+            // method visualize
+            PlotData2D tempd = new PlotData2D(result);
+            tempd.setPlotName(result.relationName());
+            tempd.addInstanceNumberAttribute();
+            // specify which points are connected
+            boolean[] cp = new boolean[result.numInstances()];
+            for (int n = 1; n < cp.length; n++) {
+                cp[n] = true;
+            }
+            tempd.setConnectPoints(cp);
+            // add plot
+            if (masterPlot) {
+                vmc.setMasterPlot(tempd);
+            } else {
+                vmc.addPlot(tempd);
+            }
+        } catch (Exception ex) {
+            System.err.println("Failed to set VMC");
+            ex.printStackTrace();
+        }
+    }
+
+    private void showVMC(ThresholdVisualizePanel vmc) {
+        final javax.swing.JFrame jf
+                = new javax.swing.JFrame("Weka ROC");
+        jf.setSize(800, 600);
+        jf.getContentPane().setLayout(new BorderLayout());
+
+        jf.getContentPane().add(vmc, BorderLayout.CENTER);
+        jf.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                jf.dispose();
+            }
+        });
+
+        jf.setVisible(true);
+    }
 
     /**
      * @param args the command line arguments
@@ -212,13 +334,19 @@ public class TextClassifierUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField kFold;
+    private javax.swing.JTextField kNearest;
+    private javax.swing.JRadioButton knn;
+    private javax.swing.JRadioButton naiveBayes;
     private javax.swing.JTextArea result;
     private javax.swing.JButton runButton;
     private javax.swing.JButton testSetButton;
     private javax.swing.JButton trainSetButton;
+    private javax.swing.JCheckBox useCV;
     // End of variables declaration//GEN-END:variables
 }
